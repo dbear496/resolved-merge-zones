@@ -1,4 +1,3 @@
-// templated from https://kel.bz/post/netfilter/
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -8,8 +7,6 @@
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <linux/types.h>
-// #include <stdint.h>
-// #include <string.h>
 
 static struct nf_hook_ops nfhook;
 
@@ -23,19 +20,20 @@ unsigned int nfhookfunc(
   static struct udphdr *udp_header;
   static void *dns_header;
   
-  if(!skb || !hookstate || !hookstate->in) return NF_ACCEPT;
+  if(!skb) return NF_ACCEPT;
   ip_header = ip_hdr(skb);   if(!ip_header) return NF_ACCEPT;
   udp_header = udp_hdr(skb); if(!udp_header) return NF_ACCEPT;
   dns_header = (void *)udp_header + 8;
   
-  if(!strcmp(hookstate->in->name, "lo") && // check interface
+  if(!(hookstate && hookstate->in && hookstate->in->name && // interface exists
+      strcmp(hookstate->in->name, "lo") && // check interface
     ip_header->protocol == IPPROTO_UDP && // check transport protocol
     ip_header->frag_off == 0 && // check fragment ID
     ntohs((uint16_t)udp_header->source) == 53 && // check port
     (ntohl(*(uint32_t*)dns_header) & 0x800F) == 0x8003 // check QR and RCODE
   ) {
     // change RCODE from 3 to 4
-    *(uint32_t*)dns_header = htonl((ntohl(*(uint32_t*)dns_header) & ~0xF) | 0x4);
+    *(uint32_t*)dns_header = htonl((ntohl(*(uint32_t*)dns_header) & ~0xF) | 4);
   }
   
   return NF_ACCEPT;
