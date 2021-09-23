@@ -28,7 +28,7 @@ unsigned int nfhookfunc(
   if(!(hookstate && hookstate->in && hookstate->in->name && // interface exists
       strcmp(hookstate->in->name, "lo")) && // check interface
     ip_header->protocol == IPPROTO_UDP && // check transport protocol
-    ip_header->frag_off == 0 && // check fragment ID
+    (ntohl(ip_header->frag_off) & 0x1FFF) == 0 && // check fragment ID
     ntohs((uint16_t)udp_header->source) == 53 && // check port
     (ntohl(*(uint32_t*)dns_header) & 0x800F) == 0x8003 // check QR and RCODE
   ) {
