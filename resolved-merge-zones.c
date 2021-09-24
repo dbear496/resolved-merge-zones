@@ -39,7 +39,7 @@ unsigned int nfhookfunc(
   return NF_ACCEPT;
 }
 
-static int __init init_dns_hack(void) {
+static int __init init_resolved_merge_zones(void) {
   nfhook.hook = nfhookfunc;
   nfhook.hooknum = NF_INET_LOCAL_IN;
   nfhook.pf = PF_INET;
@@ -48,11 +48,11 @@ static int __init init_dns_hack(void) {
   return 0;    
 }
 
-static void __exit cleanup_dns_hack(void) {
+static void __exit cleanup_resolved_merge_zones(void) {
   nf_unregister_net_hook(&init_net, &nfhook);
 }
 
-module_init(init_dns_hack);
-module_exit(cleanup_dns_hack);
+module_init(init_resolved_merge_zones);
+module_exit(cleanup_resolved_merge_zones);
 
 MODULE_LICENSE("GPL");
