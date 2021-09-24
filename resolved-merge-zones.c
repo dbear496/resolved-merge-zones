@@ -26,7 +26,7 @@ unsigned int nfhookfunc(
   dns_header = (void *)udp_header + 8;
   
   if(!(hookstate && hookstate->in && hookstate->in->name && // interface exists
-      strcmp(hookstate->in->name, "lo")) && // check interface
+      !strcmp(hookstate->in->name, "lo")) && // check not loopback
     ip_header->protocol == IPPROTO_UDP && // check transport protocol
     (ntohl(ip_header->frag_off) & 0x1FFF) == 0 && // check fragment ID
     ntohs((uint16_t)udp_header->source) == 53 && // check port
