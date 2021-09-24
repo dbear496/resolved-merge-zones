@@ -13,6 +13,7 @@ make install
 depmod -a
 modprobe resolved-merge-zones
 ```
+Note: `depmod -a` only need be run if the `make install` command reports that depmod was skipped.
 
 ### How It Works
 systemd-resolved assumes that all DNS servers are equal. Therefore, when a DNS server returns an NXDOMAIN rcode (no such domain), resolved takes that as authoritative and does not attempt other servers. However, this can cause problems if some servers _are_ different; the notable case of this is when using a private DNS server that is specific to a LAN in addition to a public DNS server for backup. In this case, resolved may get stuck on using the backup server and not properly resolve LAN-specific names.
