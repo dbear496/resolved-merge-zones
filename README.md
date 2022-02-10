@@ -5,6 +5,7 @@ Run as normal user:
 ```
 git clone https://github.com/dbear496/resolved-merge-zones.git
 cd resolved-merge-zones
+make clean
 make
 ```
 Then run with root or sudo:
@@ -13,11 +14,16 @@ make install
 depmod -a
 modprobe resolved-merge-zones
 ```
-Note: `depmod -a` only need be run if the `make install` command reports that depmod was skipped.
+
+`make clean` does not have to be run on the first install, but it should be run when reinstalling after a kernel update to make sure there are no leftovers from the build for the previous kernel version.
+
+`depmod -a` only need be run if the `make install` command reports that depmod was skipped.
 
 You may get SSL errors from the `make install` command, and this indicates that the command could not automatically sign the module. If you do not have secure boot enabled, then you can likely ignore the SSL errors. However, if you have secure boot enabled, then the system will require kernel modules to be signed, so you will need to [create a key-pair](https://wiki.gentoo.org/wiki/Signed_kernel_module_support#Building_the_kernel_with_proper_keys) and [enroll the public key](https://ubuntu.com/blog/how-to-sign-things-for-secure-boot).
 
 To test that the module is working properly, run `resolvectl query domainthatdoesnot.exist`. If all is well, you should get a `NOTIMP` error. If something went wrong, it will report `not found`.
+
+Each time the kernel is updated, this module must be recompiled and reinstalled. I recommend making a short shell script to do this.
 
 ### How It Works
 systemd-resolved assumes that all DNS servers are equal. Therefore, when a DNS server returns an NXDOMAIN rcode (no such domain), resolved takes that as authoritative and does not attempt other servers. However, this can cause problems if some servers _are_ different; the notable case of this is when using a private DNS server that is specific to a LAN in addition to a public DNS server for backup. In this case, resolved may get stuck on using the backup server and not properly resolve LAN-specific names.
